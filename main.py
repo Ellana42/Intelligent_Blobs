@@ -1,4 +1,5 @@
 from random import uniform, choice
+from math import sqrt, cos, sin, pi
 
 
 class Blob:
@@ -10,6 +11,7 @@ class Blob:
     def move(self, direction):
         self.x += direction[0]
         self.y += direction[1]
+        self.energy -= sqrt(direction[0] ** 2 + direction[1] ** 2)
 
     def choose(self, information):
         decision = self.brain.decide(information)
@@ -37,8 +39,9 @@ class Universe:
     def __init__(self):
         self.universe_size = 10
         self.blobs = []
-        self.food = Food()
+        self.food = MovingFood(self.universe_size / 2, pi / 20)
         self.generate_blobs(nb_blobs=1)
+        self.time = 0
 
     def generate_blobs(self, nb_blobs):
         for _ in range(nb_blobs):
@@ -81,11 +84,13 @@ class Universe:
         self.blobs = [blob for blob in self.blobs if blob.is_alive()]
 
     def tick(self):
+        self.food.move(self.time)
         decisions = [blob.choose(self.give_informations_for(i))
                      for i, blob in enumerate(self.blobs)]
         [self.resolve_decision_for(i, decision)
          for i, decision in enumerate(decisions)]
         self.terminate()
+        self.time += 1
 
     def __str__(self):
         state_of_world = [(blob.x, blob.y, blob.energy) for blob in self.blobs]
@@ -103,6 +108,20 @@ class Food:
 
     def distance(self, x, y):
         return abs(x - self.x) + abs(y - self.y)
+
+    def move(self, time):
+        pass
+
+
+class MovingFood(Food):
+    def __init__(self, radius, omega):
+        super().__init__()
+        self.radius = radius
+        self.omega = omega
+
+    def move(self, time):
+        self.x = cos(time * self.omega) * self.radius
+        self.y = sin(time * self.omega) * self.radius
 
 
 universe = Universe()
