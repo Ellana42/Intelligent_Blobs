@@ -32,8 +32,9 @@ class Brain:
 
     def decide(self, information):
         dist, blob, food = information
-        decisions = [('move', ()), ('eat', ())]
-        decision = decisions[choice([0, 1], p=self.decision_matrix)]
+        decisions = [('move', ()), ('eat', ()), ('reproduce', ())]
+        decision = decisions[choice(
+            range(len(decisions)), p=self.decision_matrix)]
         return decision
 
 
@@ -42,7 +43,8 @@ class Universe:
         self.universe_size = 1000
         self.blobs = []
         self.food = MovingFood(self.universe_size / 2, pi / 20)
-        self.generate_blobs(nb_blobs=10)
+        self.nb_options = 3
+        self.generate_blobs(nb_blobs=30)
         self.time = 0
 
     def generate_blobs(self, nb_blobs):
@@ -52,8 +54,7 @@ class Universe:
             self.blobs.append(Blob(x, y, decision_matrix))
 
     def random_decision_matrix(self):
-        nb_options = 2
-        weights = [randint(1, 100) for _ in range(nb_options)]
+        weights = [randint(1, 100) for _ in range(self.nb_options)]
         decision_matrix = [i / sum(weights) for i in weights]
         return decision_matrix
 
@@ -81,14 +82,27 @@ class Universe:
     def resolve_decision_for(self, i, decision):
         verb, parameter = decision
         if verb == 'move':
-            parameter = (uniform(-self.universe_size / 100, self.universe_size / 100),
-                         uniform(-self.universe_size / 100, self.universe_size / 100))
+            parameter = (uniform(-self.universe_size / 40, self.universe_size / 40),
+                         uniform(-self.universe_size / 40, self.universe_size / 40))
             self.blobs[i].move(parameter)
             return
         if verb == 'eat':
             quantity = self.food.depletion(self.blobs[i].x, self.blobs[i].y)
             self.blobs[i].eat(quantity)
             return
+        if verb == 'reproduce':
+            nearest_blob = self.nearest_blob(i)[1]
+            self.blobs[i].energy -= 100
+            self.breed(self.blobs[i], nearest_blob)
+            return
+
+    def breed(self, blob1, blob2):
+        brain1 = blob1.brain.decision_matrix
+        brain2 = blob2.brain.decision_matrix
+        new_brain = [(brain1[i] + brain2[i]) /
+                     2 for i in range(self.nb_options)]
+        x, y = self.random_coordinates()
+        self.blobs.append(Blob(x, y, new_brain))
 
     def terminate(self):
         self.blobs = [blob for blob in self.blobs if blob.is_alive()]
