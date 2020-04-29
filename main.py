@@ -1,5 +1,7 @@
-from random import uniform, choice
+from random import uniform
+from numpy.random import choice
 from math import sqrt, cos, sin, pi
+from display import Display
 
 
 class Blob:
@@ -11,7 +13,7 @@ class Blob:
     def move(self, direction):
         self.x += direction[0]
         self.y += direction[1]
-        self.energy -= sqrt(direction[0] ** 2 + direction[1] ** 2)
+        self.energy -= 0.1 * sqrt(direction[0] ** 2 + direction[1] ** 2)
 
     def choose(self, information):
         decision = self.brain.decide(information)
@@ -31,16 +33,16 @@ class Brain:
     def decide(self, information):
         dist, blob, food = information
         decisions = [('move', ()), ('eat', ())]
-        decision = choice(decisions)
+        decision = decisions[choice([0, 1], p=[0.2, 0.8])]
         return decision
 
 
 class Universe:
     def __init__(self):
-        self.universe_size = 10
+        self.universe_size = 1000
         self.blobs = []
         self.food = MovingFood(self.universe_size / 2, pi / 20)
-        self.generate_blobs(nb_blobs=1)
+        self.generate_blobs(nb_blobs=10)
         self.time = 0
 
     def generate_blobs(self, nb_blobs):
@@ -49,7 +51,7 @@ class Universe:
             self.blobs.append(Blob(x, y))
 
     def random_coordinates(self):
-        return uniform(0, self.universe_size), uniform(0, self.universe_size)
+        return uniform(0, 2 * self.universe_size), uniform(0, 2 * self.universe_size)
 
     def give_informations_for(self, i):
         d, nearest = self.nearest_blob(i)
@@ -72,7 +74,8 @@ class Universe:
     def resolve_decision_for(self, i, decision):
         verb, parameter = decision
         if verb == 'move':
-            parameter = (uniform(0, 1), uniform(0, 1))
+            parameter = (uniform(-self.universe_size / 100, self.universe_size / 100),
+                         uniform(-self.universe_size / 100, self.universe_size / 100))
             self.blobs[i].move(parameter)
             return
         if verb == 'eat':
@@ -125,7 +128,11 @@ class MovingFood(Food):
 
 
 universe = Universe()
-# while True:
-for _ in range(5):
-    print(universe)
+displayer = Display(universe)
+running = True
+
+while running:
+    inp = displayer.show()
+    if inp == 'quit':
+        running = False
     universe.tick()
