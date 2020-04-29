@@ -1,12 +1,12 @@
-from random import uniform
+from random import uniform, randint
 from numpy.random import choice
 from math import sqrt, cos, sin, pi
 from display import Display
 
 
 class Blob:
-    def __init__(self, x, y):
-        self.brain = Brain()
+    def __init__(self, x, y, decision_matrix=[0.2, 0.8]):
+        self.brain = Brain(decision_matrix)
         self.x, self.y = x, y
         self.energy = 100
 
@@ -27,13 +27,13 @@ class Blob:
 
 
 class Brain:
-    def __init__(self):
-        pass
+    def __init__(self, decision_matrix):
+        self.decision_matrix = decision_matrix
 
     def decide(self, information):
         dist, blob, food = information
         decisions = [('move', ()), ('eat', ())]
-        decision = decisions[choice([0, 1], p=[0.2, 0.8])]
+        decision = decisions[choice([0, 1], p=self.decision_matrix)]
         return decision
 
 
@@ -48,7 +48,14 @@ class Universe:
     def generate_blobs(self, nb_blobs):
         for _ in range(nb_blobs):
             x, y = self.random_coordinates()
-            self.blobs.append(Blob(x, y))
+            decision_matrix = self.random_decision_matrix()
+            self.blobs.append(Blob(x, y, decision_matrix))
+
+    def random_decision_matrix(self):
+        nb_options = 2
+        weights = [randint(1, 100) for _ in range(nb_options)]
+        decision_matrix = [i / sum(weights) for i in weights]
+        return decision_matrix
 
     def random_coordinates(self):
         return uniform(-self.universe_size // 2, self.universe_size // 2), uniform(-self.universe_size // 2, self.universe_size // 2)
@@ -104,7 +111,7 @@ class Food:
     def __init__(self):
         self.x, self.y = 0, 0
         self.strength = 10
-        self.depletion_factor = 0.05
+        self.depletion_factor = 0.07
 
     def depletion(self, x, y):
         return self.strength / (1 + self.depletion_factor * self.distance(x, y))

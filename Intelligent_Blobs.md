@@ -10,5 +10,4 @@ Resolution :
 - there's a new blob
 
 Next:
-- show food
 - reproduce
