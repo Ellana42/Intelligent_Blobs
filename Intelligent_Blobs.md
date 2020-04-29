@@ -10,4 +10,4 @@ Resolution :
 - there's a new blob
 
 Next:
-- reproduce
+- reproduce with nearest breeding blob rather than blob and punish both parents

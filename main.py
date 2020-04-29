@@ -93,7 +93,7 @@ class Universe:
         if verb == 'reproduce':
             nearest_blob = self.nearest_blob(i)[1]
             self.blobs[i].energy -= 150
-            self.duplication_breed(self.blobs[i], nearest_blob)
+            self.random_breed(self.blobs[i], nearest_blob)
             return
 
     def average_breed(self, blob1, blob2):
@@ -108,6 +108,16 @@ class Universe:
         brain1 = blob1.brain.decision_matrix
         x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
         self.blobs.append(Blob(x, y, brain1))
+
+    def random_breed(self, blob1, blob2):
+        brain1 = blob1.brain.decision_matrix
+        brain2 = blob2.brain.decision_matrix
+        brains = [brain1, brain2]
+        new_brain = [brains[randint(0, 1)][i]
+                     for i in range(self.nb_options)]
+        new_brain = [i / sum(new_brain) for i in new_brain]
+        x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
+        self.blobs.append(Blob(x, y, new_brain))
 
     def terminate(self):
         self.blobs = [blob for blob in self.blobs if blob.is_alive()]
