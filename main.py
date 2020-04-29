@@ -8,12 +8,12 @@ class Blob:
     def __init__(self, x, y, decision_matrix=[0.2, 0.8]):
         self.brain = Brain(decision_matrix)
         self.x, self.y = x, y
-        self.energy = 100
+        self.energy = 50
 
     def move(self, direction):
         self.x += direction[0]
         self.y += direction[1]
-        self.energy -= 0.1 * sqrt(direction[0] ** 2 + direction[1] ** 2)
+        self.energy -= 0.5 * sqrt(direction[0] ** 2 + direction[1] ** 2)
 
     def choose(self, information):
         decision = self.brain.decide(information)
@@ -44,7 +44,7 @@ class Universe:
         self.blobs = []
         self.food = MovingFood(self.universe_size / 2, pi / 20)
         self.nb_options = 3
-        self.generate_blobs(nb_blobs=30)
+        self.generate_blobs(nb_blobs=50)
         self.time = 0
 
     def generate_blobs(self, nb_blobs):
@@ -92,17 +92,22 @@ class Universe:
             return
         if verb == 'reproduce':
             nearest_blob = self.nearest_blob(i)[1]
-            self.blobs[i].energy -= 100
-            self.breed(self.blobs[i], nearest_blob)
+            self.blobs[i].energy -= 150
+            self.duplication_breed(self.blobs[i], nearest_blob)
             return
 
-    def breed(self, blob1, blob2):
+    def average_breed(self, blob1, blob2):
         brain1 = blob1.brain.decision_matrix
         brain2 = blob2.brain.decision_matrix
         new_brain = [(brain1[i] + brain2[i]) /
                      2 for i in range(self.nb_options)]
-        x, y = self.random_coordinates()
+        x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
         self.blobs.append(Blob(x, y, new_brain))
+
+    def duplication_breed(self, blob1, blob2):
+        brain1 = blob1.brain.decision_matrix
+        x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
+        self.blobs.append(Blob(x, y, brain1))
 
     def terminate(self):
         self.blobs = [blob for blob in self.blobs if blob.is_alive()]
@@ -124,8 +129,8 @@ class Universe:
 class Food:
     def __init__(self):
         self.x, self.y = 0, 0
-        self.strength = 10
-        self.depletion_factor = 0.07
+        self.strength = 500
+        self.depletion_factor = 0.4
 
     def depletion(self, x, y):
         return self.strength / (1 + self.depletion_factor * self.distance(x, y))

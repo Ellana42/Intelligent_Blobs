@@ -35,7 +35,8 @@ class Display:
     def make_food(self):
         food = Surface((self.size * 2, self.size * 2))
         for y in range(self.size)[::-1]:
-            intensity = int(self.universe.food.depletion(0, y) * 25.5)
+            intensity = int(self.universe.food.depletion(
+                0, y) * 255 // self.universe.food.strength)
             draw.circle(food, (intensity, 0, 0),
                         (self.size // 2, self.size // 2), y)
         return food
