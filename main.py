@@ -51,7 +51,7 @@ class Universe:
             self.blobs.append(Blob(x, y))
 
     def random_coordinates(self):
-        return uniform(0, 2 * self.universe_size), uniform(0, 2 * self.universe_size)
+        return uniform(-self.universe_size // 2, self.universe_size // 2), uniform(-self.universe_size // 2, self.universe_size // 2)
 
     def give_informations_for(self, i):
         d, nearest = self.nearest_blob(i)
@@ -104,7 +104,7 @@ class Food:
     def __init__(self):
         self.x, self.y = 0, 0
         self.strength = 10
-        self.depletion_factor = 2
+        self.depletion_factor = 0.05
 
     def depletion(self, x, y):
         return self.strength / (1 + self.depletion_factor * self.distance(x, y))

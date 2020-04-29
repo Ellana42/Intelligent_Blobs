@@ -8,3 +8,7 @@ Resolution :
 - has lost energy
 - has gained energy
 - there's a new blob
+
+Next:
+- show food
+- reproduce
