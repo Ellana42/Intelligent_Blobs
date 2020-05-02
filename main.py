@@ -5,15 +5,15 @@ from display import Display
 
 
 class Blob:
-    def __init__(self, x, y, decision_matrix=[0.2, 0.8]):
-        self.brain = Brain(decision_matrix)
+    def __init__(self, x, y, brain):
+        self.brain = brain
         self.x, self.y = x, y
         self.energy = 50
 
     def move(self, direction):
         self.x += direction[0]
         self.y += direction[1]
-        self.energy -= 0.5 * sqrt(direction[0] ** 2 + direction[1] ** 2)
+        self.energy -= sqrt(direction[0] ** 2 + direction[1] ** 2)
 
     def choose(self, information):
         decision = self.brain.decide(information)
@@ -29,29 +29,40 @@ class Blob:
 class Brain:
     def __init__(self, decision_matrix):
         self.decision_matrix = decision_matrix
+        self.decision_matrix_wo_reproduce = self.normalize(
+            self.decision_matrix)
 
     def decide(self, information):
         dist, blob, food = information
-        decisions = [('move', ()), ('eat', ()), ('reproduce', ())]
+        decisions = [('move', ()), ('eat', ())]
+        if blob is not None:
+            decisions.append(('reproduce', (blob)))
         decision = decisions[choice(
             range(len(decisions)), p=self.decision_matrix)]
         return decision
+
+    def normalize(self, decision_matrix):
+        n = sum(decision_matrix) if len(decision_matrix) > 0 else 0
+        if n == 0:
+            return []
+        return [x / n for x in decision_matrix]
 
 
 class Universe:
     def __init__(self):
         self.universe_size = 1000
         self.blobs = []
-        self.food = MovingFood(self.universe_size / 2, pi / 20)
+        self.food = MovingFood(self.universe_size / 4, pi / 100)
         self.nb_options = 3
-        self.generate_blobs(nb_blobs=50)
+        self.generate_blobs(nb_blobs=100)
         self.time = 0
 
     def generate_blobs(self, nb_blobs):
         for _ in range(nb_blobs):
             x, y = self.random_coordinates()
             decision_matrix = self.random_decision_matrix()
-            self.blobs.append(Blob(x, y, decision_matrix))
+            brain = Brain(decision_matrix)
+            self.blobs.append(Blob(x, y, brain))
 
     def random_decision_matrix(self):
         weights = [randint(1, 100) for _ in range(self.nb_options)]
@@ -63,6 +74,8 @@ class Universe:
 
     def give_informations_for(self, i):
         d, nearest = self.nearest_blob(i)
+        if d > 10:
+            d, nearest = 0, None
         food_level = self.food.depletion(self.blobs[i].x, self.blobs[i].y)
         return (d, nearest, food_level)
 
@@ -92,7 +105,7 @@ class Universe:
             return
         if verb == 'reproduce':
             nearest_blob = self.nearest_blob(i)[1]
-            self.blobs[i].energy -= 150
+            self.blobs[i].energy -= 100
             self.random_breed(self.blobs[i], nearest_blob)
             return
 
@@ -139,14 +152,14 @@ class Universe:
 class Food:
     def __init__(self):
         self.x, self.y = 0, 0
-        self.strength = 500
-        self.depletion_factor = 0.4
+        self.strength = 100
+        self.depletion_factor = 1
 
     def depletion(self, x, y):
         return self.strength / (1 + self.depletion_factor * self.distance(x, y))
 
     def distance(self, x, y):
-        return abs(x - self.x) + abs(y - self.y)
+        return sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 
     def move(self, time):
         pass

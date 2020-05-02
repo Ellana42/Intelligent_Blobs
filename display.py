@@ -21,7 +21,7 @@ class Display:
                 inp = 'quit'
         for blob in self.universe.blobs:
             draw.circle(self.window, (0, 128, 129),
-                        (self.size // 2 + int(blob.x), self.size // 2 + int(blob.y)), int(blob.energy) // 10)
+                        (self.size // 2 + int(blob.x), self.size // 2 + int(blob.y)), int(blob.energy))
         display.update()
         return inp
 
@@ -36,7 +36,8 @@ class Display:
         food = Surface((self.size * 2, self.size * 2))
         for y in range(self.size)[::-1]:
             intensity = int(self.universe.food.depletion(
-                0, y) * 255 // self.universe.food.strength)
+                0, y) / 10 * 255)
+            intensity = min(255, intensity)
             draw.circle(food, (intensity, 0, 0),
                         (self.size // 2, self.size // 2), y)
         return food
