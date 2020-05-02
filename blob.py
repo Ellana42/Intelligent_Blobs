@@ -6,7 +6,7 @@ class Blob:
         self.x, self.y = x, y
         self.energy = energy
         self.heading = heading
-        self.omega = omega
+        self.omega = -omega
         self.speed = speed
 
     # Actions : 
@@ -14,11 +14,11 @@ class Blob:
     def move(self):
         self.x += self.speed * cos(self.heading)
         self.y += self.speed * sin(self.heading)
-        self.energy -= self.speed
+        self.energy -= 0.1 * self.speed
 
     def rotate(self):
         self.heading += self.omega
-
+        self.energy -= 0.05 * self.speed
     def eat(self, quantity):
         self.energy += quantity
     # -----------------------------------------------

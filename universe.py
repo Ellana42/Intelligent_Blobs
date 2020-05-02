@@ -2,7 +2,7 @@ from random import uniform, randint
 from math import sqrt, cos, sin, pi
 
 from blob import Blob
-from brain import Brain, RandomBrain
+from brain import Brain, RandomBrain, SmartBrain
 from food import MovingFood
 
 
@@ -13,14 +13,14 @@ class Universe:
         self.universe_size = 1000
         self.blobs = []
         self.food = MovingFood(radius=self.universe_size / 4, omega=pi / 100, strength=100, depletion_factor=1)
-        self.generate_blobs(nb_blobs=10)
+        self.generate_blobs(nb_blobs=100)
         self.time = 0
 
     def generate_blobs(self, nb_blobs):
         mid = self.universe_size // 2
         for _ in range(nb_blobs):
             x, y = uniform(-mid, mid), uniform(-mid, mid)
-            self.blobs.append(Blob(x, y, brain=RandomBrain(self.ACTIONS)))
+            self.blobs.append(Blob(x, y, brain=SmartBrain(self.ACTIONS)))
 
     def give_informations_for(self, i):
         # Find nearest blob
@@ -34,8 +34,8 @@ class Universe:
         eps = 0.1
         grad_x = (self.food.depletion(blob.x + eps, blob.y)- food_level )/ eps
         grad_y = (self.food.depletion(blob.x, blob.y + eps)- food_level )/ eps
-        food_dir = grad_x * cos(blob.heading) + grad_y * sin(blob.heading)
-        return (d, nearest, food_level, food_dir)
+        food_dir = grad_x * cos(blob.heading) + grad_y * sin(blob.heading) 
+        return (d, nearest, food_level, 1000*food_dir)
 
     def nearest_blob(self, ind):
         distance_min = 10 * self.universe_size * self.universe_size

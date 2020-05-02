@@ -65,3 +65,17 @@ class RandomBrain(Brain):
                      for i in range(nb_options)]
         new_brain = [i / sum(new_brain) for i in new_brain]
         return new_brain
+
+class SmartBrain(Brain):
+    def __init__(self, actions):
+        super().__init__(actions)
+        self.nb_options = len(actions)
+
+    def decide(self, information):
+        dist, blob, food, food_dir = information
+        if food > 1:
+            return 'eat', ()
+
+        if food_dir > 0.6:
+            return ('move', ())
+        return ('rotate', ())
