@@ -1,5 +1,5 @@
 from pygame import *
-
+from math import sin, cos
 
 class Display:
     def __init__(self, universe):
@@ -22,6 +22,8 @@ class Display:
         for blob in self.universe.blobs:
             draw.circle(self.window, (0, 128, 129),
                         (self.size // 2 + int(blob.x), self.size // 2 + int(blob.y)), int(blob.energy))
+            draw.circle(self.window, (255, 255, 255), (self.size // 2 + int(blob.x+ cos(blob.heading) * blob.energy), 
+                                                    self.size // 2 + int(blob.y + sin(blob.heading) * blob.energy)), 2)
         display.update()
         return inp
 

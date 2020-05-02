@@ -9,36 +9,48 @@ class Blob:
         self.brain = brain
         self.x, self.y = x, y
         self.energy = 50
+        self.heading = 0
+        self.omega = 0.5
+        self.speed = 10
 
-    def move(self, direction):
-        self.x += direction[0]
-        self.y += direction[1]
-        self.energy -= sqrt(direction[0] ** 2 + direction[1] ** 2)
+    # Actions : 
 
+    def move(self):
+        self.x += self.speed * cos(self.heading)
+        self.y += self.speed * sin(self.heading)
+        self.energy -= self.speed
+
+    def rotate(self):
+        self.heading += self.omega
+
+    def eat(self, quantity):
+        self.energy += quantity
+    # -----------------------------------------------
     def choose(self, information):
         decision = self.brain.decide(information)
         return decision
 
-    def eat(self, quantity):
-        self.energy += quantity
-
     def is_alive(self):
         return self.energy > 0
 
-
+    
 class Brain:
     def __init__(self, decision_matrix):
         self.decision_matrix = decision_matrix
         self.decision_matrix_wo_reproduce = self.normalize(
-            self.decision_matrix)
+            self.decision_matrix[:-1])
 
     def decide(self, information):
-        dist, blob, food = information
-        decisions = [('move', ()), ('eat', ())]
+        dist, blob, food, food_dir = information
+        decisions = [('move', ()), ('eat', ()), ('rotate', ())]
         if blob is not None:
             decisions.append(('reproduce', (blob)))
-        decision = decisions[choice(
-            range(len(decisions)), p=self.decision_matrix)]
+            decision = decisions[choice(
+                range(len(decisions)), p=self.decision_matrix)]
+        else:
+            decision = decisions[choice(
+                range(len(decisions)), p=self.decision_matrix_wo_reproduce)]
+
         return decision
 
     def normalize(self, decision_matrix):
@@ -53,7 +65,7 @@ class Universe:
         self.universe_size = 1000
         self.blobs = []
         self.food = MovingFood(self.universe_size / 4, pi / 100)
-        self.nb_options = 3
+        self.nb_options = 4
         self.generate_blobs(nb_blobs=100)
         self.time = 0
 
@@ -76,8 +88,13 @@ class Universe:
         d, nearest = self.nearest_blob(i)
         if d > 10:
             d, nearest = 0, None
-        food_level = self.food.depletion(self.blobs[i].x, self.blobs[i].y)
-        return (d, nearest, food_level)
+        blob = self.blobs[i]
+        food_level = self.food.depletion(blob.x, blob.y) 
+        eps = 0.1
+        grad_x = (self.food.depletion(blob.x + eps, blob.y)- food_level )/ eps
+        grad_y = (self.food.depletion(blob.x, blob.y + eps)- food_level )/ eps
+        food_dir = grad_x * cos(blob.heading) + grad_y * sin(blob.heading)
+        return (d, nearest, food_level, food_dir)
 
     def nearest_blob(self, ind):
         distance_min = 10 * self.universe_size * self.universe_size
@@ -93,20 +110,22 @@ class Universe:
         return distance_min, blob_min
 
     def resolve_decision_for(self, i, decision):
+        blob = self.blobs[i]
         verb, parameter = decision
         if verb == 'move':
-            parameter = (uniform(-self.universe_size / 40, self.universe_size / 40),
-                         uniform(-self.universe_size / 40, self.universe_size / 40))
-            self.blobs[i].move(parameter)
+            blob.move()
             return
         if verb == 'eat':
-            quantity = self.food.depletion(self.blobs[i].x, self.blobs[i].y)
-            self.blobs[i].eat(quantity)
+            quantity = self.food.depletion(blob.x, blob.y)
+            blob.eat(quantity)
             return
         if verb == 'reproduce':
             nearest_blob = self.nearest_blob(i)[1]
-            self.blobs[i].energy -= 100
-            self.random_breed(self.blobs[i], nearest_blob)
+            blob.energy -= 100
+            self.random_breed(blob, nearest_blob)
+            return
+        if verb == 'rotate':
+            blob.rotate()
             return
 
     def average_breed(self, blob1, blob2):
@@ -115,12 +134,12 @@ class Universe:
         new_brain = [(brain1[i] + brain2[i]) /
                      2 for i in range(self.nb_options)]
         x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
-        self.blobs.append(Blob(x, y, new_brain))
+        self.blobs.append(Blob(x, y, Brain(new_brain)))
 
     def duplication_breed(self, blob1, blob2):
         brain1 = blob1.brain.decision_matrix
         x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
-        self.blobs.append(Blob(x, y, brain1))
+        self.blobs.append(Blob(x, y, Brain(brain1)))
 
     def random_breed(self, blob1, blob2):
         brain1 = blob1.brain.decision_matrix
@@ -130,7 +149,7 @@ class Universe:
                      for i in range(self.nb_options)]
         new_brain = [i / sum(new_brain) for i in new_brain]
         x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
-        self.blobs.append(Blob(x, y, new_brain))
+        self.blobs.append(Blob(x, y, Brain(new_brain)))
 
     def terminate(self):
         self.blobs = [blob for blob in self.blobs if blob.is_alive()]
