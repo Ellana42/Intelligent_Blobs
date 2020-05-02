@@ -2,40 +2,35 @@ from random import uniform, randint
 from math import sqrt, cos, sin, pi
 
 from blob import Blob
-from brain import Brain
+from brain import Brain, RandomBrain
 from food import MovingFood
 
 
 class Universe:
+    ACTIONS = ['move', 'eat', 'rotate', 'reproduce']
+
     def __init__(self):
         self.universe_size = 1000
         self.blobs = []
-        self.food = MovingFood(self.universe_size / 4, pi / 100)
-        self.nb_options = 4
-        self.generate_blobs(nb_blobs=100)
+        self.food = MovingFood(radius=self.universe_size / 4, omega=pi / 100, strength=100, depletion_factor=1)
+        self.generate_blobs(nb_blobs=10)
         self.time = 0
 
     def generate_blobs(self, nb_blobs):
+        mid = self.universe_size // 2
         for _ in range(nb_blobs):
-            x, y = self.random_coordinates()
-            decision_matrix = self.random_decision_matrix()
-            brain = Brain(decision_matrix)
-            self.blobs.append(Blob(x, y, brain))
-
-    def random_decision_matrix(self):
-        weights = [randint(1, 100) for _ in range(self.nb_options)]
-        decision_matrix = [i / sum(weights) for i in weights]
-        return decision_matrix
-
-    def random_coordinates(self):
-        return uniform(-self.universe_size // 2, self.universe_size // 2), uniform(-self.universe_size // 2, self.universe_size // 2)
+            x, y = uniform(-mid, mid), uniform(-mid, mid)
+            self.blobs.append(Blob(x, y, brain=RandomBrain(self.ACTIONS)))
 
     def give_informations_for(self, i):
+        # Find nearest blob
         d, nearest = self.nearest_blob(i)
         if d > 10:
             d, nearest = 0, None
+        # Find food level at blob location
         blob = self.blobs[i]
         food_level = self.food.depletion(blob.x, blob.y) 
+        # Find direction of food : gradient of food level dot heading vector 
         eps = 0.1
         grad_x = (self.food.depletion(blob.x + eps, blob.y)- food_level )/ eps
         grad_y = (self.food.depletion(blob.x, blob.y + eps)- food_level )/ eps
@@ -68,35 +63,15 @@ class Universe:
         if verb == 'reproduce':
             nearest_blob = self.nearest_blob(i)[1]
             blob.energy -= 100
-            self.random_breed(blob, nearest_blob)
+            new_brain = RandomBrain.random_breed(blob, nearest_blob)
+            x, y = (blob.x + nearest_blob.x) / 2, (blob.y + nearest_blob.y) / 2
+            self.blobs.append(Blob(x, y, brain=Brain(new_brain)))
             return
         if verb == 'rotate':
             blob.rotate()
             return
 
-    def average_breed(self, blob1, blob2):
-        brain1 = blob1.brain.decision_matrix
-        brain2 = blob2.brain.decision_matrix
-        new_brain = [(brain1[i] + brain2[i]) /
-                     2 for i in range(self.nb_options)]
-        x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
-        self.blobs.append(Blob(x, y, Brain(new_brain)))
-
-    def duplication_breed(self, blob1, blob2):
-        brain1 = blob1.brain.decision_matrix
-        x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
-        self.blobs.append(Blob(x, y, Brain(brain1)))
-
-    def random_breed(self, blob1, blob2):
-        brain1 = blob1.brain.decision_matrix
-        brain2 = blob2.brain.decision_matrix
-        brains = [brain1, brain2]
-        new_brain = [brains[randint(0, 1)][i]
-                     for i in range(self.nb_options)]
-        new_brain = [i / sum(new_brain) for i in new_brain]
-        x, y = (blob1.x + blob2.x) / 2, (blob1.y + blob2.y) / 2
-        self.blobs.append(Blob(x, y, Brain(new_brain)))
-
+    
     def terminate(self):
         self.blobs = [blob for blob in self.blobs if blob.is_alive()]
 

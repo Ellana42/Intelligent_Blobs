@@ -1,13 +1,13 @@
-from math import cos, sinr
+from math import cos, sin
 
 class Blob:
-    def __init__(self, x, y, brain):
+    def __init__(self, x, y, brain,energy=50, heading=0, omega=0.5, speed=10):
         self.brain = brain
         self.x, self.y = x, y
-        self.energy = 50
-        self.heading = 0
-        self.omega = 0.5
-        self.speed = 10
+        self.energy = energy
+        self.heading = heading
+        self.omega = omega
+        self.speed = speed
 
     # Actions : 
 

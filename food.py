@@ -1,10 +1,10 @@
 from math import sqrt, cos, sin
 
 class Food:
-    def __init__(self):
+    def __init__(self, strength=100, depletion_factor=1):
         self.x, self.y = 0, 0
-        self.strength = 100
-        self.depletion_factor = 1
+        self.strength = strength
+        self.depletion_factor = depletion_factor
 
     def depletion(self, x, y):
         return self.strength / (1 + self.depletion_factor * self.distance(x, y))
@@ -17,8 +17,8 @@ class Food:
 
 
 class MovingFood(Food):
-    def __init__(self, radius, omega):
-        super().__init__()
+    def __init__(self, radius, omega, strength=100, depletion_factor=1):
+        super().__init__(strength, depletion_factor)
         self.radius = radius
         self.omega = omega
 
