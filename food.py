@@ -1,5 +1,6 @@
 from math import sqrt, cos, sin
 
+
 class Food:
     def __init__(self, strength=100, depletion_factor=1):
         self.x, self.y = 0, 0

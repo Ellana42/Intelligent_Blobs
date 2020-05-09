@@ -1,5 +1,6 @@
 from numpy.random import choice
-from random import uniform, randint
+from random import randint
+
 
 class Brain:
     def __init__(self, actions):
@@ -7,6 +8,7 @@ class Brain:
 
     def decide(self, information):
         return ('move', ())
+
 
 class RandomBrain(Brain):
     def __init__(self, actions):
@@ -47,13 +49,12 @@ class RandomBrain(Brain):
         brain2 = blob2.brain.decision_matrix
         new_brain = [(brain1[i] + brain2[i]) /
                      2 for i in range(nb_options)]
-        return new_brain    
-    
+        return new_brain
+
     @classmethod
     def duplication_breed(cls, blob1, blob2):
         brain1 = blob1.brain.decision_matrix
         return brain1
-    
 
     @classmethod
     def random_breed(cls, blob1, blob2):
@@ -65,6 +66,7 @@ class RandomBrain(Brain):
                      for i in range(nb_options)]
         new_brain = [i / sum(new_brain) for i in new_brain]
         return new_brain
+
 
 class SmartBrain(Brain):
     def __init__(self, actions):
