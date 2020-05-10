@@ -22,9 +22,9 @@ class Display:
                 inp = 'quit'
         for blob in self.universe.blobs:
             draw.circle(self.window, (0, 128, 129),
-                        (self.size // 2 + int(blob.x), self.size // 2 + int(blob.y)), int(blob.energy))
-            draw.circle(self.window, (255, 255, 255), (self.size // 2 + int(blob.x + cos(blob.heading) * blob.energy),
-                                                       self.size // 2 + int(blob.y + sin(blob.heading) * blob.energy)), 2)
+                        (self.size // 2 + int(blob.x), self.size // 2 + int(blob.y)), int(blob.energy) // 10)
+            draw.circle(self.window, (255, 255, 255), (self.size // 2 + int(blob.x + cos(blob.heading) * blob.energy/10),
+                                                       self.size // 2 + int(blob.y + sin(blob.heading) * blob.energy/10)), 2)
         display.update()
         return inp
 

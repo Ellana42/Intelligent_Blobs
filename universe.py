@@ -5,6 +5,7 @@ from blob import Blob
 from brain import RandomBrain, SmartBrain
 from food import MovingFood
 from settings import settings
+from copy import copy
 
 
 class Universe:
@@ -15,9 +16,11 @@ class Universe:
         self.blobs = []
         self.food = MovingFood(radius=settings['food_radius'],
                                omega=settings['food_omega'],
-                               strength=settings['food_strenght'],
+                               strength=settings['food_strength'],
                                depletion_factor=settings['food_depletion_factor'])
-        self.brain_type = SmartBrain
+        self.brain_prototype = SmartBrain(actions=None,
+                                          eat_threshold=settings['smartbrain_eat_threshold'],
+                                          move_threshold=settings['smartbrain_move_threshold'])
         self.generate_blobs(nb_blobs=settings['nb_blobs'])
         self.time = 0
         self.breed_type = RandomBrain.random_breed
@@ -28,9 +31,15 @@ class Universe:
         mid = self.universe_size // 2
         for _ in range(nb_blobs):
             x, y = uniform(-mid, mid), uniform(-mid, mid)
-            self.blobs.append(Blob(x, y, brain=self.brain_type(self.ACTIONS)))
+            self.blobs.append(Blob(x, y,
+                                   energy=settings['blob_initial_energy'],
+                                   speed=settings['blob_speed'],
+                                   energy_per_move=settings['energy_per_move'],
+                                   energy_per_rotate=settings['energy_per_rotate'],
+                                   brain=copy(self.brain_prototype))
+                              )
 
-    def give_informations_for(self, i):
+    def give_information_for(self, i):
         # Find nearest blob
         d, nearest = self.nearest_blob(i)
         if d > self.nearest_blob_max_dist:
@@ -43,7 +52,7 @@ class Universe:
         grad_x = (self.food.depletion(blob.x + eps, blob.y) - food_level) / eps
         grad_y = (self.food.depletion(blob.x, blob.y + eps) - food_level) / eps
         food_dir = grad_x * cos(blob.heading) + grad_y * sin(blob.heading)
-        return (d, nearest, food_level, 1000 * food_dir)
+        return d, nearest, food_level, 1000 * food_dir
 
     def nearest_blob(self, ind):
         distance_min = 10 * self.universe_size * self.universe_size
@@ -84,7 +93,7 @@ class Universe:
 
     def tick(self):
         self.food.move(self.time)
-        decisions = [blob.choose(self.give_informations_for(i))
+        decisions = [blob.decide(self.give_information_for(i))
                      for i, blob in enumerate(self.blobs)]
         [self.resolve_decision_for(i, decision)
          for i, decision in enumerate(decisions)]

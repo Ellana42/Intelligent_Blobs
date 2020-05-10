@@ -6,6 +6,9 @@ class Brain:
     def __init__(self, actions):
         pass
 
+    def __copy__(self):
+        return Brain(actions=None)
+
     def decide(self, information):
         return ('move', ())
 
@@ -69,15 +72,19 @@ class RandomBrain(Brain):
 
 
 class SmartBrain(Brain):
-    def __init__(self, actions):
+    def __init__(self, actions, eat_threshold=1, move_threshold=0.6):
         super().__init__(actions)
-        self.nb_options = len(actions)
+        self.eat_threshold = eat_threshold
+        self.move_threshold = move_threshold
+
+    def __copy__(self):
+        return SmartBrain(actions=None, eat_threshold=self.eat_threshold, move_threshold=self.move_threshold)
 
     def decide(self, information):
         dist, blob, food, food_dir = information
-        if food > 1:
+        if food > self.eat_threshold:
             return 'eat', ()
 
-        if food_dir > 0.6:
+        if food_dir > self.move_threshold:
             return ('move', ())
         return ('rotate', ())
