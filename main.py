@@ -3,8 +3,8 @@ from universe import Universe
 
 universe = Universe()
 displayer = Display(universe)
-running = True
 
+running = True
 while running:
     inp = displayer.show()
     if inp == 'quit':

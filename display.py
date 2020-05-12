@@ -21,10 +21,12 @@ class Display:
             if evt.type == KEYDOWN and evt.key == K_ESCAPE:
                 inp = 'quit'
         for blob in self.universe.blobs:
+            radius = min(int(blob.energy) // 10, 10)
             draw.circle(self.window, (0, 128, 129),
-                        (self.size // 2 + int(blob.x), self.size // 2 + int(blob.y)), int(blob.energy) // 10)
-            draw.circle(self.window, (255, 255, 255), (self.size // 2 + int(blob.x + cos(blob.heading) * blob.energy/10),
-                                                       self.size // 2 + int(blob.y + sin(blob.heading) * blob.energy/10)), 2)
+                        (self.size // 2 + int(blob.x), self.size // 2 + int(blob.y)), radius)
+
+            draw.circle(self.window, (255, 255, 255), (self.size // 2 + int(blob.x + cos(blob.heading) * radius),
+                                                       self.size // 2 + int(blob.y + sin(blob.heading) * radius)), 2)
         display.update()
         return inp
 
