@@ -57,7 +57,9 @@ class Universe:
         distance_min = 10 * self.universe_size * self.universe_size
         blob_min = None
         x, y = self.blobs[ind].x, self.blobs[ind].y
+        # Find the cell of the blob
         cell_x, cell_y = int(x // self.grid_size), int(y // self.grid_size)
+        # Look only for the blobs in the adjacent cells
         for delta_x, delta_y in [(0, -1), (-1, -1), (1, -1), (0, 0), (-1, 0), (1, 0), (0, 1), (-1, 1), (1, 1)]:
             if (cell_x + delta_x, cell_y + delta_y) not in self.grid:
                 continue
@@ -140,7 +142,7 @@ class Universe:
 
     def tick(self):
         # Prepare statistics for this tick
-        self.tick_stats = {'n_move': 0, 'n_eat': 0, 'n_reproduce': 0, 'n_rotate': 0}
+        self.tick_stats = {'t': self.time, 'n_move': 0, 'n_eat': 0, 'n_reproduce': 0, 'n_rotate': 0}
         # Prepare the "nearest blob" acceleration
         self.initialize_accelerator()
         # Move the food
@@ -179,7 +181,6 @@ class Universe:
         self.stats.append(self.tick_stats)
 
         print(self.tick_stats)
-
 
     def __str__(self):
         state_of_world = [(blob.x, blob.y, blob.energy) for blob in self.blobs]
