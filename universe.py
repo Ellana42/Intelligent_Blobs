@@ -37,7 +37,7 @@ class Universe:
         self.stats = []
         self.tick_stats = {}
         self.grid = None
-        self.grid_size = self.cost_reproduction
+        self.grid_size = self.nearest_blob_max_dist * 2
 
     def initialize_accelerator(self):
         # Split the universe into a grid of squares os size self.nearest_blob_max_dist
