@@ -36,6 +36,39 @@ class Universe:
         self.reproduction_maturity = settings['reproduction_maturity']
         self.stats = []
         self.tick_stats = {}
+        self.grid = None
+        self.grid_size = self.cost_reproduction
+
+    def initialize_accelerator(self):
+        # Split the universe into a grid of squares os size self.nearest_blob_max_dist
+        # Attribute each blob to one cell
+        # In summary: create an spatial index
+        self.grid = {}
+        for i, blob in enumerate(self.blobs):
+            if blob.age < self.reproduction_maturity:
+                continue
+            x, y = int(blob.x // self.grid_size), int(blob.y // self.grid_size)
+            if (x, y) not in self.grid:
+                self.grid[(x, y)] = [(i, blob)]
+            else:
+                self.grid[(x, y)].append((i, blob))
+
+    def nearest_blob(self, ind):
+        distance_min = 10 * self.universe_size * self.universe_size
+        blob_min = None
+        x, y = self.blobs[ind].x, self.blobs[ind].y
+        cell_x, cell_y = int(x // self.grid_size), int(y // self.grid_size)
+        for delta_x, delta_y in [(0, -1), (-1, -1), (1, -1), (0, 0), (-1, 0), (1, 0), (0, 1), (-1, 1), (1, 1)]:
+            if (cell_x + delta_x, cell_y + delta_y) not in self.grid:
+                continue
+            for i, blob in self.grid[(cell_x + delta_x, cell_y + delta_y)]:
+                if i == ind or blob.age < self.reproduction_maturity:
+                    continue
+                d = abs(blob.x - x) + abs(blob.y - y)
+                if d < distance_min:
+                    distance_min = d
+                    blob_min = blob
+        return distance_min, blob_min
 
     def generate_blobs(self, nb_blobs):
         mid = self.universe_size // 2
@@ -54,33 +87,23 @@ class Universe:
     def give_information_for(self, i):
         blob = self.blobs[i]
         d, nearest = 0, None
+        # Only mature enough blobs can reproduce
         if blob.age > self.reproduction_maturity:
             # Find nearest blob
             d, nearest = self.nearest_blob(i)
             if d > self.nearest_blob_max_dist:
                 d, nearest = 0, None
+
         # Find food level at blob location
         blob = self.blobs[i]
         food_level = self.food.depletion(blob.x, blob.y)
+
         # Find direction of food : gradient of food level dot heading vector
         eps = 0.1
         grad_x = (self.food.depletion(blob.x + eps, blob.y) - food_level) / eps
         grad_y = (self.food.depletion(blob.x, blob.y + eps) - food_level) / eps
         food_dir = grad_x * cos(blob.heading) + grad_y * sin(blob.heading)
         return d, nearest, food_level, 1000 * food_dir
-
-    def nearest_blob(self, ind):
-        distance_min = 10 * self.universe_size * self.universe_size
-        blob_min = None
-        x, y = self.blobs[ind].x, self.blobs[ind].y
-        for i, blob in enumerate(self.blobs):
-            if i == ind or blob.age < self.reproduction_maturity:
-                continue
-            d = abs(blob.x - x) + abs(blob.y - y)
-            if d < distance_min:
-                distance_min = d
-                blob_min = blob
-        return distance_min, blob_min
 
     def resolve_decision_for(self, i, decision):
         blob = self.blobs[i]
@@ -116,20 +139,34 @@ class Universe:
         self.blobs = [blob for blob in self.blobs if blob.is_alive()]
 
     def tick(self):
+        # Prepare statistics for this tick
         self.tick_stats = {'n_move': 0, 'n_eat': 0, 'n_reproduce': 0, 'n_rotate': 0}
+        # Prepare the "nearest blob" acceleration
+        self.initialize_accelerator()
+        # Move the food
         self.food.move(self.time)
+
+        # Compute each blob's decision
         before = len(self.blobs)
         decisions = [blob.decide(self.give_information_for(i)) for i, blob in enumerate(self.blobs)]
+
+        # Resolve the blob's decision (apply them in the universe)
         [self.resolve_decision_for(i, decision) for i, decision in enumerate(decisions)]
         self.tick_stats['born'] = - before + len(self.blobs)
         before = len(self.blobs)
+
+        # Kill the blobs when they have negative energy
         self.terminate()
         self.tick_stats['die'] = before - len(self.blobs)
+
+        # Age each blob
         [b.tick() for b in self.blobs]
+
+        # Advance the universe clock
         self.time += 1
-        self.tick_stats['n'] = len(self.blobs)
 
         # Compute stats on blob population
+        self.tick_stats['n'] = len(self.blobs)
         blob_stats = {k: 0 for k in self.brain_prototype.PARAMETERS}
         if len(self.blobs) > 0:
             for blob in self.blobs:
@@ -137,6 +174,8 @@ class Universe:
                     blob_stats[k] += blob.brain.__getattribute__(k)
             for k in self.brain_prototype.PARAMETERS:
                 self.tick_stats[k] = blob_stats[k] / len(self.blobs)
+
+        # Save stat history
         self.stats.append(self.tick_stats)
 
         print(self.tick_stats)
