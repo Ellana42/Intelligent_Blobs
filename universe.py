@@ -116,11 +116,14 @@ class Universe:
         self.blobs = [blob for blob in self.blobs if blob.is_alive()]
 
     def tick(self):
-        self.tick_stats = {'n_move': 0, 'n_eat': 0, 'n_reproduce': 0, 'n_rotate': 0}
+        self.tick_stats = {'n_move': 0, 'n_eat': 0,
+                           'n_reproduce': 0, 'n_rotate': 0}
         self.food.move(self.time)
         before = len(self.blobs)
-        decisions = [blob.decide(self.give_information_for(i)) for i, blob in enumerate(self.blobs)]
-        [self.resolve_decision_for(i, decision) for i, decision in enumerate(decisions)]
+        decisions = [blob.decide(self.give_information_for(i))
+                     for i, blob in enumerate(self.blobs)]
+        [self.resolve_decision_for(i, decision)
+         for i, decision in enumerate(decisions)]
         self.tick_stats['born'] = - before + len(self.blobs)
         before = len(self.blobs)
         self.terminate()
@@ -138,9 +141,6 @@ class Universe:
             for k in self.brain_prototype.PARAMETERS:
                 self.tick_stats[k] = blob_stats[k] / len(self.blobs)
         self.stats.append(self.tick_stats)
-
-        print(self.tick_stats)
-
 
     def __str__(self):
         state_of_world = [(blob.x, blob.y, blob.energy) for blob in self.blobs]
