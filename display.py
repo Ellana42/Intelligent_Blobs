@@ -11,6 +11,9 @@ class Display:
         self.background = self.make_background()
         self.food = self.make_food()
 
+    def quit(self):
+        quit()
+
     def show(self):
         self.window.blit(self.background, (0, 0))
         self.window.blit(

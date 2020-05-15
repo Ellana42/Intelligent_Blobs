@@ -7,10 +7,14 @@ displayer = Display(universe)
 
 running = True
 while running:
-    if universe.time % 3 == 0:
+    if universe.time % 1 == 0:
         inp = displayer.show()
     if inp == 'quit':
         running = False
-        stats = universe.stats
-        plot(stats, 'born')
     universe.tick()
+
+displayer.quit()
+stats = universe.stats
+plot(stats, 'eat_threshold')
+plot(stats, 'move_threshold')
+plot(stats, 'born')
