@@ -110,31 +110,40 @@ class Universe:
     def resolve_decision_for(self, i, decision):
         blob = self.blobs[i]
         verb, parameter = decision
+        # Update statistics
+        self.tick_stats['n_{}'.format(verb)] += 1
+
         if verb == 'move':
             blob.move()
-            self.tick_stats['n_move'] += 1
             return
         if verb == 'eat':
             quantity = self.food.depletion(blob.x, blob.y)
             blob.eat(quantity)
-            self.tick_stats['n_eat'] += 1
             return
         if verb == 'reproduce':
             nearest_blob = parameter
+
             energy_loss = blob.energy * self.cost_reproduction
-            blob.energy -= energy_loss
+            # Create a new Brain
             new_brain = self.breed_type(blob, nearest_blob)
+
+            # Create a new Blob at the middle of the 2 parents, equipped with the new Brain
             x, y = (blob.x + nearest_blob.x) / 2, (blob.y + nearest_blob.y) / 2
+            new_blob = Blob(x, y, brain=new_brain)
+            # The enerfy level of the new Blob is taken from its parents (no energy creation in the process)
+            new_blob.energy = 2 * energy_loss
+            self.blobs.append(new_blob)
+
+            # The parent can't reproduce immediately
             blob.age = 0
             nearest_blob.age = 0
-            new_blob = Blob(x, y, brain=new_brain)
-            new_blob.energy = energy_loss
-            self.blobs.append(new_blob)
-            self.tick_stats['n_reproduce'] += 1
+            # The lose the energy the child takes
+            blob.energy -= energy_loss
+            nearest_blob.energy -= energy_loss
+
             return
         if verb == 'rotate':
             blob.rotate()
-            self.tick_stats['n_rotate'] += 1
             return
 
     def terminate(self):
