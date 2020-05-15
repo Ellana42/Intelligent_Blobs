@@ -11,5 +11,5 @@ while running:
     if inp == 'quit':
         running = False
         stats = universe.stats
-        plot(stats, 'n')
+        plot(stats, 'born')
     universe.tick()
