@@ -2,7 +2,7 @@ from display import Display
 from universe import Universe
 from stats import plot_multiple
 from settings import settings
-from brain import RandomBrainGenerator, SmmartBrainGenerator, RandomBrain, SmartBrain
+from brain import RandomBrainGenerator, SmmartBrainGenerator, RandomBrain, SmartBrain, RandomBrainGeneratorCentered
 
 
 '''
@@ -30,17 +30,43 @@ settings['breed_type'] = RandomBrain.smart_breed
 
 settings['nb_blobs'] = 400
 
-universe = Universe(settings)
-displayer = Display(universe)
 
-running = True
-while running:
-    if universe.time % 1 == 0:
-        inp = displayer.show()
-    if inp == 'quit':
-        running = False
-    universe.tick()
+def run_until(max_time, settings, display=True):
+    universe = Universe(settings)
+    if display:
+        displayer = Display(universe)
 
-displayer.quit()
-stats = universe.stats
-plot_multiple(stats, ['n', 'born', 'eat_threshold', 'move_threshold', 'reprod_energy_threshold'])
+    running = True
+    while running:
+        if display:
+            inp = displayer.show()
+            if inp == 'quit':
+                running = False
+        universe.tick()
+        if universe.time > max_time:
+            running = False
+
+    if display:
+        displayer.quit()
+
+    return universe
+
+
+cumulated_stats = []
+
+for factor in [1.0, 0.8, 0.5, 0.2, 0.1]:
+    universe1 = run_until(max_time=300, settings=settings, display=True)
+    stats = universe1.stats
+    cumulated_stats.extend(stats)
+    last_stat = stats.pop(-1)
+    settings['brain_generator'] = RandomBrainGeneratorCentered(
+        eat_threshold=last_stat['eat_threshold'],
+        move_threshold=last_stat['move_threshold'],
+        reprod_energy_threshold=last_stat['reprod_energy_threshold'],
+        var_eat_threshold=0.4 * factor,
+        var_move_threshold=0.4 * factor,
+        var_reprod_energy_threshold=0.3 * factor
+    )
+
+plot_multiple(cumulated_stats, ['n', 'born', 'eat_threshold', 'move_threshold', 'reprod_energy_threshold'])
+

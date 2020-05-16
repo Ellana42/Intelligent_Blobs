@@ -112,3 +112,28 @@ class RandomBrainGenerator:
                            move_threshold=uniform(-self.max_move_threshold, self.max_move_threshold),
                            reprod_energy_threshold=uniform(0, self.max_reprod_energy_threshold)
                            )
+
+
+class RandomBrainGeneratorCentered:
+    PARAMETERS = ['eat_threshold', 'move_threshold', 'reprod_energy_threshold']
+
+    def __init__(self,
+                 var_eat_threshold, var_move_threshold, var_reprod_energy_threshold,
+                 eat_threshold, move_threshold, reprod_energy_threshold):
+        self.var_eat_threshold = var_eat_threshold
+        self.var_move_threshold = var_move_threshold
+        self.var_reprod_energy_threshold = var_reprod_energy_threshold
+
+        self.eat_threshold = eat_threshold
+        self.move_threshold = move_threshold
+        self.reprod_energy_threshold = reprod_energy_threshold
+
+    def generate_brain(self):
+        return RandomBrain(actions=None,
+                           var_eat_threshold=self.var_eat_threshold,
+                           var_move_threshold=self.var_move_threshold,
+                           var_reprod_energy_threshold=self.var_reprod_energy_threshold,
+                           eat_threshold=self.eat_threshold,
+                           move_threshold=self.move_threshold,
+                           reprod_energy_threshold=self.reprod_energy_threshold
+                           )

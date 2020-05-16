@@ -32,10 +32,10 @@ class Universe:
         self.stats = []
         self.tick_stats = {}
         self.grid = None
-        self.grid_size = self.nearest_blob_max_dist * 2
+        self.grid_size = self.nearest_blob_max_dist
 
     def initialize_accelerator(self):
-        # Split the universe into a grid of squares os size self.nearest_blob_max_dist
+        # Split the universe into a grid of squares of size self.nearest_blob_max_dist
         # Attribute each blob to one cell
         # In summary: create an spatial index
         self.grid = {}
@@ -139,7 +139,6 @@ class Universe:
 
             self.blobs.append(new_blob)
 
-
             return
         if verb == 'rotate':
             blob.rotate()
@@ -191,7 +190,7 @@ class Universe:
 
         # Save stat history
         self.stats.append(self.tick_stats)
-        print(self.tick_stats)
+        #  print(self.tick_stats)
 
     def __str__(self):
         state_of_world = [(blob.x, blob.y, blob.energy) for blob in self.blobs]
