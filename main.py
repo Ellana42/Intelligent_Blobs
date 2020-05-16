@@ -2,7 +2,15 @@ from display import Display
 from universe import Universe
 from stats import plot_multiple
 from settings import settings
-from brain import RandomSmartBrain, RandomSmartBrain2, SmartBrain
+from brain import RandomBrainGenerator, SmmartBrainGenerator, RandomBrain, SmartBrain
+
+
+'''
+Bons paramètres pour des SmartBrain qui survivent
+
+settings['brain_generator'] = SmartBrainGenerator(eat_threshold=6, move_threshold=1, reprod_energy_threshold=40)
+settings['breed_type'] = SmartBrain.smart_breed
+'''
 
 '''
 
@@ -12,20 +20,13 @@ from brain import RandomSmartBrain, RandomSmartBrain2, SmartBrain
     'randomsmartbrain_move_threshold': 4,
     'randomsmartbrain_reproduce_distance_threshold': 10,
 
-
-settings['brain_prototype'] = RandomSmartBrain(actions=None,
-                                               eat_threshold=settings['randomsmartbrain_eat_threshold'],
-                                               move_threshold=settings['randomsmartbrain_move_threshold'],
-                                               reprod_energy_threshold=settings['randomsmartbrain_reproduce_distance_threshold'])
-settings['breed_type'] = RandomSmartBrain.smart_breed
 '''
+settings['brain_generator'] = RandomBrainGenerator(max_eat_threshold=6, max_move_threshold=1, max_reprod_energy_threshold=40,
+                                                   var_eat_threshold=0.4, var_move_threshold=0.4, var_reprod_energy_threshold=0.3)
+settings['brain_generator'] = RandomBrainGenerator(max_eat_threshold=10, max_move_threshold=10, max_reprod_energy_threshold=200,
+                                                   var_eat_threshold=0.4, var_move_threshold=0.4, var_reprod_energy_threshold=0.3)
+settings['breed_type'] = RandomBrain.smart_breed
 
-'''
-Bons paramètres pour des SmartBrain qui survivent
-
-settings['brain_prototype'] = SmartBrain(actions=None, eat_threshold=6, move_threshold=1, reprod_energy_threshold=40)
-settings['breed_type'] = SmartBrain.smart_breed
-'''
 
 settings['nb_blobs'] = 400
 

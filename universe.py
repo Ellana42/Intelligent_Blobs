@@ -2,9 +2,7 @@ from random import uniform
 from math import cos, sin
 
 from blob import Blob
-from brain import RandomBrain, SmartBrain, RandomSmartBrain
 from food import MovingFood
-from copy import copy
 
 
 class Universe:
@@ -24,7 +22,7 @@ class Universe:
                                           move_threshold=settings['smartbrain_move_threshold'],
                                           reprod_distance_threshold=settings['smartbrain_reproduce_distance_threshold'])
         '''
-        self.brain_prototype = settings['brain_prototype']
+        self.brain_generator = settings['brain_generator']
         self.generate_blobs(nb_blobs=settings['nb_blobs'])
         self.time = 0
         self.breed_type = settings['breed_type']
@@ -73,7 +71,7 @@ class Universe:
         mid = self.universe_size // 2
         for _ in range(nb_blobs):
             x, y = uniform(-mid, mid), uniform(-mid, mid)
-            brain = copy(self.brain_prototype)
+            brain = self.brain_generator.generate_brain()
             self.blobs.append(Blob(x, y,
                                    energy=self.settings['blob_initial_energy'],
                                    speed=self.settings['blob_speed'],
@@ -181,12 +179,12 @@ class Universe:
 
         # Compute stats on blob population
         self.tick_stats['n'] = len(self.blobs)
-        blob_stats = {k: 0 for k in self.brain_prototype.PARAMETERS}
+        blob_stats = {k: 0 for k in self.brain_generator.PARAMETERS}
         if len(self.blobs) > 0:
             for blob in self.blobs:
-                for k in self.brain_prototype.PARAMETERS:
+                for k in self.brain_generator.PARAMETERS:
                     blob_stats[k] += blob.brain.__getattribute__(k)
-            for k in self.brain_prototype.PARAMETERS:
+            for k in self.brain_generator.PARAMETERS:
                 self.tick_stats[k] = blob_stats[k] / len(self.blobs)
         else:
             self.tick_stats.update(blob_stats)
