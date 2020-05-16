@@ -20,8 +20,12 @@ settings['brain_prototype'] = RandomSmartBrain(actions=None,
 settings['breed_type'] = RandomSmartBrain.smart_breed
 '''
 
+'''
+Bons paramètres pour des SmartBrain qui survivent
+
 settings['brain_prototype'] = SmartBrain(actions=None, eat_threshold=6, move_threshold=1, reprod_energy_threshold=40)
 settings['breed_type'] = SmartBrain.smart_breed
+'''
 
 settings['nb_blobs'] = 400
 

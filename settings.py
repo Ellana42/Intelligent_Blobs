@@ -13,7 +13,7 @@ settings = {
     'cost_reproduction': 0.7,  # Pourcentage d'énergie transférée à l'enfant
     'nearest_blob_max_dist': 10,
 
-    # Caractéritique des blobs
+    # Caractéritiques des blobs
     'blob_initial_energy': 150,
     'blob_speed': 10,  # Distance parcourue par tick
     'blob_omega': 0.8,  # Vitesse angulaire en radians / tick
