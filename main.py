@@ -1,6 +1,6 @@
 from display import Display
 from universe import Universe
-from stats import plot
+from stats import plot, plot_multiple
 
 universe = Universe()
 displayer = Display(universe)
@@ -15,6 +15,4 @@ while running:
 
 displayer.quit()
 stats = universe.stats
-plot(stats, 'eat_threshold')
-plot(stats, 'move_threshold')
-plot(stats, 'born')
+plot_multiple(stats, ['eat_threshold', 'move_threshold', 'born'])
