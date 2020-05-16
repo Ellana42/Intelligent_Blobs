@@ -75,8 +75,6 @@ class RandomBrain(Brain):
 
 
 class SmartBrain(Brain):
-    PARAMETERS = ['eat_threshold', 'move_threshold', 'reprod_distance_threshold']
-
     def __init__(self, actions, eat_threshold=1, move_threshold=0.6, reprod_distance_threshold=5):
         super().__init__(actions)
         self.eat_threshold = eat_threshold

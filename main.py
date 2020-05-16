@@ -1,5 +1,6 @@
 from display import Display
 from universe import Universe
+from stats import plot, plot_multiple
 from stats import plot
 from settings import settings
 from brain import RandomSmartBrain, RandomSmartBrain2, SmartBrain
@@ -31,6 +32,4 @@ while running:
 
 displayer.quit()
 stats = universe.stats
-plot(stats, 'eat_threshold')
-plot(stats, 'move_threshold')
-plot(stats, 'born')
+plot_multiple(stats, ['eat_threshold', 'move_threshold', 'born'])
