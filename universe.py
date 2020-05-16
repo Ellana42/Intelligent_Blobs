@@ -102,7 +102,7 @@ class Universe:
         grad_x = (self.food.depletion(blob.x + eps, blob.y) - food_level) / eps
         grad_y = (self.food.depletion(blob.x, blob.y + eps) - food_level) / eps
         food_dir = grad_x * cos(blob.heading) + grad_y * sin(blob.heading)
-        return d, nearest, food_level, 1000 * food_dir
+        return d, nearest, food_level, 1000 * food_dir, blob.energy
 
     def resolve_decision_for(self, i, decision):
         blob = self.blobs[i]
@@ -120,23 +120,27 @@ class Universe:
         if verb == 'reproduce':
             nearest_blob = parameter
 
-            energy_loss = blob.energy * self.cost_reproduction
+            # The parent can't reproduce immediately
+            blob.age = 0
+            nearest_blob.age = 0
+
+            # The lose the energy the child takes
+            energy_loss1 = blob.energy * self.cost_reproduction
+            energy_loss2 = nearest_blob.energy * self.cost_reproduction
+            blob.energy -= energy_loss1
+            nearest_blob.energy -= energy_loss2
+
             # Create a new Brain
             new_brain = self.breed_type(blob, nearest_blob)
 
             # Create a new Blob at the middle of the 2 parents, equipped with the new Brain
             x, y = (blob.x + nearest_blob.x) / 2, (blob.y + nearest_blob.y) / 2
             new_blob = Blob(x, y, brain=new_brain)
-            # The enerfy level of the new Blob is taken from its parents (no energy creation in the process)
-            new_blob.energy = 2 * energy_loss
+            # The energy level of the new Blob is taken from its parents (no energy creation in the process)
+            new_blob.energy = energy_loss1 + energy_loss2
+
             self.blobs.append(new_blob)
 
-            # The parent can't reproduce immediately
-            blob.age = 0
-            nearest_blob.age = 0
-            # The lose the energy the child takes
-            blob.energy -= energy_loss
-            nearest_blob.energy -= energy_loss
 
             return
         if verb == 'rotate':
@@ -184,9 +188,12 @@ class Universe:
                     blob_stats[k] += blob.brain.__getattribute__(k)
             for k in self.brain_prototype.PARAMETERS:
                 self.tick_stats[k] = blob_stats[k] / len(self.blobs)
+        else:
+            self.tick_stats.update(blob_stats)
 
         # Save stat history
         self.stats.append(self.tick_stats)
+        print(self.tick_stats)
 
     def __str__(self):
         state_of_world = [(blob.x, blob.y, blob.energy) for blob in self.blobs]

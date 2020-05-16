@@ -75,22 +75,22 @@ class RandomBrain(Brain):
 
 
 class SmartBrain(Brain):
-    PARAMETERS = ['eat_threshold', 'move_threshold', 'reprod_distance_threshold']
+    PARAMETERS = ['eat_threshold', 'move_threshold', 'reprod_energy_threshold']
 
-    def __init__(self, actions, eat_threshold=1, move_threshold=0.6, reprod_distance_threshold=5):
+    def __init__(self, actions, eat_threshold=1, move_threshold=0.6, reprod_energy_threshold=5):
         super().__init__(actions)
         self.eat_threshold = eat_threshold
         self.move_threshold = move_threshold
-        self.reprod_distance_threshold = reprod_distance_threshold
+        self.reprod_energy_threshold = reprod_energy_threshold
 
     def __copy__(self):
         return SmartBrain(actions=None, eat_threshold=self.eat_threshold,
                           move_threshold=self.move_threshold,
-                          reprod_distance_threshold=self.reprod_distance_threshold)
+                          reprod_energy_threshold=self.reprod_energy_threshold)
 
     def decide(self, information):
-        dist, blob, food, food_dir = information
-        if blob is not None and dist < self.reprod_distance_threshold:
+        dist, blob, food, food_dir, energy = information
+        if blob is not None and energy > self.reprod_energy_threshold and food > self.eat_threshold:
             return 'reproduce', blob
         if food > self.eat_threshold:
             return 'eat', ()
@@ -104,15 +104,15 @@ class SmartBrain(Brain):
 
 
 class RandomSmartBrain(SmartBrain):
-    PARAMETERS = ['eat_threshold', 'move_threshold', 'reprod_distance_threshold']
+    PARAMETERS = ['eat_threshold', 'move_threshold', 'reprod_energy_threshold']
 
     def __init__(self, actions,
-                 max_eat_threshold=10, max_move_threshold=5, max_reprod_distance_threshold=20,
-                 eat_threshold=None, move_threshold=None, reprod_distance_threshold=None):
+                 max_eat_threshold=10, max_move_threshold=5, max_reprod_energy_threshold=20,
+                 eat_threshold=None, move_threshold=None, reprod_energy_threshold=None):
         super().__init__(actions)
         self.max_eat_threshold = max_eat_threshold
         self.max_move_threshold = max_move_threshold
-        self.max_reprod_distance_threshold = max_reprod_distance_threshold
+        self.max_reprod_energy_threshold = max_reprod_energy_threshold
 
         self.eat_threshold = eat_threshold
         if eat_threshold is None:
@@ -122,15 +122,15 @@ class RandomSmartBrain(SmartBrain):
         if move_threshold is None:
             self.move_threshold = uniform(-self.max_move_threshold, self.max_move_threshold)
 
-        self.reprod_distance_threshold = reprod_distance_threshold
-        if reprod_distance_threshold is None:
-            self.reprod_distance_threshold = uniform(0, self.max_reprod_distance_threshold)
+        self.reprod_energy_threshold = reprod_energy_threshold
+        if reprod_energy_threshold is None:
+            self.reprod_energy_threshold = uniform(0, self.max_reprod_energy_threshold)
 
     def __copy__(self):
         return RandomSmartBrain(actions=None,
                                 max_eat_threshold=self.max_eat_threshold,
                                 max_move_threshold=self.max_move_threshold,
-                                max_reprod_distance_threshold=self.max_reprod_distance_threshold)
+                                max_reprod_energy_threshold=self.max_reprod_energy_threshold)
 
     @classmethod
     def smart_breed(cls, blob1, blob2):
@@ -138,27 +138,27 @@ class RandomSmartBrain(SmartBrain):
         new_brain = RandomSmartBrain(None,
                                      max_eat_threshold=brain1.max_eat_threshold,
                                      max_move_threshold=brain1.max_move_threshold,
-                                     max_reprod_distance_threshold=brain1.max_reprod_distance_threshold,
+                                     max_reprod_energy_threshold=brain1.max_reprod_energy_threshold,
                                      eat_threshold=0.5 * (brain1.eat_threshold + brain2.eat_threshold),
                                      move_threshold=0.5 * (brain1.move_threshold + brain2.move_threshold),
-                                     reprod_distance_threshold=0.5 * (brain1.reprod_distance_threshold + brain2.reprod_distance_threshold)
+                                     reprod_energy_threshold=0.5 * (brain1.reprod_energy_threshold + brain2.reprod_energy_threshold)
                                     )
         return new_brain
 
 
 class RandomSmartBrain2(SmartBrain):
-    PARAMETERS = ['eat_threshold', 'move_threshold', 'reprod_distance_threshold']
+    PARAMETERS = ['eat_threshold', 'move_threshold', 'reprod_energy_threshold']
 
     def __init__(self, actions,
-                 var_eat_threshold=10, var_move_threshold=5, var_reprod_distance_threshold=20,
-                 eat_threshold=None, move_threshold=None, reprod_distance_threshold=None):
+                 var_eat_threshold=10, var_move_threshold=5, var_reprod_energy_threshold=20,
+                 eat_threshold=None, move_threshold=None, reprod_energy_threshold=None):
         super().__init__(actions)
         # Regle :
         # - si les xxx_threshold sont à None, alors ils sont tirés aléatoirement selon les var_xxx_threshold
         # - sinon, les xxx_threshold sont modifiés aleatoirement d'un écart RELATIF var_xxx_threshold
         self.var_eat_threshold = var_eat_threshold
         self.var_move_threshold = var_move_threshold
-        self.var_reprod_distance_threshold = var_reprod_distance_threshold
+        self.var_reprod_energy_threshold = var_reprod_energy_threshold
 
         self.eat_threshold = eat_threshold
         if eat_threshold is None:
@@ -172,17 +172,17 @@ class RandomSmartBrain2(SmartBrain):
         else:
             self.move_threshold += self.move_threshold * self.var_move_threshold * uniform(-1, 1)
 
-        self.reprod_distance_threshold = reprod_distance_threshold
-        if reprod_distance_threshold is None:
-            self.reprod_distance_threshold = uniform(0, self.var_reprod_distance_threshold)
+        self.reprod_energy_threshold = reprod_energy_threshold
+        if reprod_energy_threshold is None:
+            self.reprod_energy_threshold = uniform(0, self.var_reprod_energy_threshold)
         else:
-            self.reprod_distance_threshold += self.reprod_distance_threshold * self.var_reprod_distance_threshold * uniform(-1, 1)
+            self.reprod_energy_threshold += self.reprod_energy_threshold * self.var_reprod_energy_threshold * uniform(-1, 1)
 
     def __copy__(self):
         return RandomSmartBrain2(actions=None,
                                  var_eat_threshold=self.var_eat_threshold,
                                  var_move_threshold=self.var_move_threshold,
-                                 var_reprod_distance_threshold=self.var_reprod_distance_threshold)
+                                 var_reprod_energy_threshold=self.var_reprod_energy_threshold)
 
     @classmethod
     def smart_breed(cls, blob1, blob2):
@@ -190,9 +190,9 @@ class RandomSmartBrain2(SmartBrain):
         new_brain = RandomSmartBrain2(None,
                                       var_eat_threshold=brain1.max_eat_threshold,
                                       var_move_threshold=brain1.max_move_threshold,
-                                      var_reprod_distance_threshold=brain1.max_reprod_distance_threshold,
+                                      var_reprod_energy_threshold=brain1.max_reprod_energy_threshold,
                                       eat_threshold=0.5 * (brain1.eat_threshold + brain2.eat_threshold),
                                       move_threshold=0.5 * (brain1.move_threshold + brain2.move_threshold),
-                                      reprod_distance_threshold=0.5 * (brain1.reprod_distance_threshold + brain2.reprod_distance_threshold)
+                                      reprod_energy_threshold=0.5 * (brain1.reprod_energy_threshold + brain2.reprod_energy_threshold)
                                       )
         return new_brain
