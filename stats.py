@@ -13,7 +13,7 @@ def plot(stats, chosen_stat):
 def plot_multiple(stats, chosen_stats):
     plt.style.use('ggplot')
     time = range(len(stats))
-    fig, axes = plt.subplots(len(chosen_stats), 1)
+    fig, axes = plt.subplots(len(chosen_stats), 1, figsize=(8, 8))
     fig.subplots_adjust(hspace=1)
     i = 0
     for axe in axes:
