@@ -12,10 +12,7 @@ settings['brain_prototype'] = RandomSmartBrain(actions=None,
 
 settings['breed_type'] = RandomSmartBrain.smart_breed
 
-settings['brain_prototype'] = SmartBrain(actions=None,
-                                         eat_threshold=settings['smartbrain_eat_threshold'],
-                                         move_threshold=settings['smartbrain_move_threshold'],
-                                         reprod_distance_threshold=settings['smartbrain_reproduce_distance_threshold'])
+settings['brain_prototype'] = SmartBrain(actions=None, eat_threshold=4, move_threshold=0.4, reprod_distance_threshold=3)
 
 settings['breed_type'] = SmartBrain.smart_breed
 
@@ -32,4 +29,4 @@ while running:
 
 displayer.quit()
 stats = universe.stats
-plot_multiple(stats, ['eat_threshold', 'move_threshold', 'born'])
+plot_multiple(stats, ['n', 'born', 'eat_threshold', 'move_threshold'])

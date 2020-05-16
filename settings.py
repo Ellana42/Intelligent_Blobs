@@ -23,10 +23,6 @@ settings = {
     'energy_when_idle': 0.3, # Perte d'énergie dans le cas contraire (manger)
     'reproduction_maturity': 30,  # Age en ticks avant de pouvoir se reproduire
 
-    # Brain
-    'smartbrain_eat_threshold': 2,
-    'smartbrain_move_threshold': 0.4,
-    'smartbrain_reproduce_distance_threshold': 3,
 
     # RandomSmartBrain
     'randomsmartbrain_eat_threshold': 10,
