@@ -1,8 +1,24 @@
 from display import Display
 from universe import Universe
 from stats import plot
+from settings import settings
+from brain import RandomSmartBrain, RandomSmartBrain2, SmartBrain
 
-universe = Universe()
+settings['brain_prototype'] = RandomSmartBrain(actions=None,
+                                               eat_threshold=settings['randomsmartbrain_eat_threshold'],
+                                               move_threshold=settings['randomsmartbrain_move_threshold'],
+                                               reprod_distance_threshold=settings['randomsmartbrain_reproduce_distance_threshold'])
+
+settings['breed_type'] = RandomSmartBrain.smart_breed
+
+settings['brain_prototype'] = SmartBrain(actions=None,
+                                         eat_threshold=settings['smartbrain_eat_threshold'],
+                                         move_threshold=settings['smartbrain_move_threshold'],
+                                         reprod_distance_threshold=settings['smartbrain_reproduce_distance_threshold'])
+
+settings['breed_type'] = SmartBrain.smart_breed
+
+universe = Universe(settings)
 displayer = Display(universe)
 
 running = True

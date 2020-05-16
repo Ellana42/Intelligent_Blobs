@@ -4,14 +4,14 @@ from math import cos, sin
 from blob import Blob
 from brain import RandomBrain, SmartBrain, RandomSmartBrain
 from food import MovingFood
-from settings import settings
 from copy import copy
 
 
 class Universe:
     ACTIONS = ['move', 'eat', 'rotate', 'reproduce']
 
-    def __init__(self):
+    def __init__(self, settings):
+        self.settings = settings
         self.universe_size = settings['universe_size']
         self.blobs = []
         self.food = MovingFood(radius=settings['food_radius'],
@@ -24,13 +24,10 @@ class Universe:
                                           move_threshold=settings['smartbrain_move_threshold'],
                                           reprod_distance_threshold=settings['smartbrain_reproduce_distance_threshold'])
         '''
-        self.brain_prototype = RandomSmartBrain(actions=None,
-                                                eat_threshold=settings['randomsmartbrain_eat_threshold'],
-                                                move_threshold=settings['randomsmartbrain_move_threshold'],
-                                                reprod_distance_threshold=settings['randomsmartbrain_reproduce_distance_threshold'])
+        self.brain_prototype = settings['brain_prototype']
         self.generate_blobs(nb_blobs=settings['nb_blobs'])
         self.time = 0
-        self.breed_type = RandomSmartBrain.smart_breed
+        self.breed_type = settings['breed_type']
         self.cost_reproduction = settings['cost_reproduction']
         self.nearest_blob_max_dist = settings['nearest_blob_max_dist']
         self.reproduction_maturity = settings['reproduction_maturity']
@@ -78,11 +75,11 @@ class Universe:
             x, y = uniform(-mid, mid), uniform(-mid, mid)
             brain = copy(self.brain_prototype)
             self.blobs.append(Blob(x, y,
-                                   energy=settings['blob_initial_energy'],
-                                   speed=settings['blob_speed'],
-                                   energy_per_move=settings['energy_per_move'],
-                                   energy_per_rotate=settings['energy_per_rotate'],
-                                   energy_when_idle=settings['energy_when_idle'],
+                                   energy=self.settings['blob_initial_energy'],
+                                   speed=self.settings['blob_speed'],
+                                   energy_per_move=self.settings['energy_per_move'],
+                                   energy_per_rotate=self.settings['energy_per_rotate'],
+                                   energy_when_idle=self.settings['energy_when_idle'],
                                    brain=brain)
                               )
 

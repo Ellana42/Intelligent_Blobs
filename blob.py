@@ -1,4 +1,5 @@
 from math import cos, sin
+from random import random
 
 
 class Blob:
@@ -8,18 +9,23 @@ class Blob:
         self.x, self.y = x, y
         self.energy = energy
         self.heading = heading
-        self.omega = omega
+        self.omega_absolute = self.omega = omega
         self.speed = speed
         self.energy_per_move = energy_per_move
         self.energy_per_rotate = energy_per_rotate
         self.energy_when_idle = energy_when_idle
         self.age = 0
+        self.choose_rotation()
+
+    def choose_rotation(self):
+        self.omega = self.omega_absolute if random() < 0.5 else - self.omega_absolute
 
     # Actions :
     def move(self):
         self.x += self.speed * cos(self.heading)
         self.y += self.speed * sin(self.heading)
         self.energy -= self.energy_per_move
+        self.choose_rotation()
 
     def rotate(self):
         self.heading += self.omega
