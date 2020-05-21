@@ -1,15 +1,6 @@
 import matplotlib.pyplot as plt
 
 
-def plot(stats, chosen_stat):
-    stat = [stat[chosen_stat] for stat in stats]
-    time = range(len(stat))
-    plt.plot(time, stat)
-    plt.ylabel(chosen_stat)
-    plt.xlabel('time')
-    plt.show()
-
-
 def plot_multiple(stats, chosen_stats):
     plt.style.use('ggplot')
     time = range(len(stats))
