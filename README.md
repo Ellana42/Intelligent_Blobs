@@ -52,7 +52,7 @@ On introduit ensuite une notion d'époque : chaque simulation a une longueur lim
 Simulation d'interactions dans un jeu de captation de ressources 
 ================================================================
 
-Dans la première partie du projet, nous simulons des interactions entre
+Dans [la première partie du projet](https://github.com/Ellana42/BlobEating), nous simulons des interactions entre
 des blobs sur un plateau sur lequel on dispose aléatoirement de la
 nourriture. L'objectif de départ était d'étudier les décisions et
 stratégies des blobs, et en particulier d'observer le rôle de
@@ -90,4 +90,4 @@ Nous avons finalement créé des statistiques permettant d'évaluer et de
 visualiser notamment l'ampleur de l'altruisme dans ce jeu. Nous
 reviendrons plus en détail sur ce point lors de la soutenance.
 
-Tout notre code est accessible sur Github à [cette adresse](https://github.com/Ellana42/BlobEating).
+Tout le code pour cette partie du projet est accessible sur Github à [cette adresse](https://github.com/Ellana42/BlobEating).
